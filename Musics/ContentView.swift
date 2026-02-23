@@ -8,22 +8,38 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var results: [Result]
-    
+    @State var results = [Result]()
+    @State var search: (String, ) = String()
+
     var body: some View {
-        List(results, id: \.trackId) { item in
-            VStack(alignment: .leading) {
-                Text(item.trackName)
-                    .font(.headline)
+        NavigationStack {
+            List(results, id: \.trackId) { item in
+                VStack(alignment: .leading) {
+                    Text(item.trackName)
+                        .font(.headline)
+                    Text(item.artistName)
+                        .font(.subheadline)
+                }
+            }
+            .task {
+                await loadData()
             }
         }
-        .task {
-            await loadData()
+        .searchable(text: $search)
+        .onChange(of: search) { _, _ in
+            Task {
+                await loadData()
+            }
         }
     }
     
     func loadData() async {
-        guard let url = URL(string: "https://itunes.apple.com/search?term=taylor+swift&entity=song") else {
+        
+        let urlString = search.isEmpty
+            ? "https://itunes.apple.com/search?term=pop&entity=song"
+            : "https://itunes.apple.com/search?term=\(search)&entity=song"
+        
+        guard let url = URL(string: urlString) else {
             print("Invalid URL")
             return
         }
@@ -41,5 +57,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(results: [])
+    ContentView()
 }
