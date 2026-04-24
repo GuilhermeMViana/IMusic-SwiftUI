@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var results = [Result]()
-    @State var search: (String, ) = String()
+    @State var search: (String) = String()
 
     var body: some View {
         NavigationStack {
